@@ -10,32 +10,46 @@
     return e;
   }
 
+  function productCard(p) {
+    var card = el("article", "card");
+
+    var badge = el("span", "card-badge", p.priceLabel);
+    card.appendChild(badge);
+
+    card.appendChild(el("h3", "card-name", p.name));
+    card.appendChild(el("p", "card-tagline", p.tagline));
+    card.appendChild(el("p", "card-oneliner", p.oneliner));
+
+    var ul = el("ul", "card-features");
+    p.features.forEach(function (f) {
+      ul.appendChild(el("li", null, f));
+    });
+    card.appendChild(ul);
+
+    var link = el("a", "card-link", "View on GitHub →");
+    link.href = p.repoUrl;
+    link.target = "_blank";
+    link.rel = "noopener";
+    card.appendChild(link);
+
+    return card;
+  }
+
   function renderProducts() {
     var grid = document.getElementById("product-grid");
     if (!grid) return;
-    D.PRODUCTS.forEach(function (p) {
-      var card = el("article", "card");
-
-      var badge = el("span", "card-badge", p.priceLabel);
-      card.appendChild(badge);
-
-      card.appendChild(el("h3", "card-name", p.name));
-      card.appendChild(el("p", "card-tagline", p.tagline));
-      card.appendChild(el("p", "card-oneliner", p.oneliner));
-
-      var ul = el("ul", "card-features");
-      p.features.forEach(function (f) {
-        ul.appendChild(el("li", null, f));
+    D.SECTIONS.forEach(function (s) {
+      var items = D.productsInSection(s.key);
+      if (!items.length) return;
+      var block = el("div", "section-block");
+      block.appendChild(el("h3", "section-title", s.title));
+      if (s.sub) block.appendChild(el("p", "section-sub-line", s.sub));
+      var row = el("div", "grid");
+      items.forEach(function (p) {
+        row.appendChild(productCard(p));
       });
-      card.appendChild(ul);
-
-      var link = el("a", "card-link", "View on GitHub →");
-      link.href = p.repoUrl;
-      link.target = "_blank";
-      link.rel = "noopener";
-      card.appendChild(link);
-
-      grid.appendChild(card);
+      block.appendChild(row);
+      grid.appendChild(block);
     });
   }
 

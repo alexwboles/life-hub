@@ -20,12 +20,13 @@ flow("getProduct lookup", () => {
   assert.strictEqual(D.getProduct("nope-not-real"), null);
 });
 
-// Flow 2: bundle economics are exactly as advertised
+// Flow 2: bundle economics are exactly as advertised (original five only)
 flow("bundle economics", () => {
   assert.strictEqual(D.separateTotal(), 8 + 8 + 6 + 8); // giftgenius free
   assert.strictEqual(D.bundlePrice(), 19);
   assert.strictEqual(D.bundleSavings(), 11);
   assert.ok(D.bundleSavings() > 0, "bundle must actually save money");
+  assert.strictEqual(D.grandTotal(), 196, "29 products sum to 196/mo");
 });
 
 // Flow 3: weekly narrative is a coherent Mon–Sun story
@@ -41,16 +42,25 @@ flow("weekly narrative", () => {
 // Flow 4: every product card has everything the renderer needs
 flow("card completeness", () => {
   D.PRODUCTS.forEach(p => {
-    ["slug","name","tagline","oneliner","features","price","priceLabel","repoUrl"].forEach(k => {
+    ["slug","section","name","tagline","oneliner","features","price","priceLabel","repoUrl"].forEach(k => {
       assert.ok(p[k] !== undefined && p[k] !== null && p[k] !== "", p.slug + " missing " + k);
     });
+    assert.ok(D.SECTIONS.some(s => s.key === p.section), p.slug + " has unknown section " + p.section);
+    assert.strictEqual(p.features.length, 3, p.slug + " needs exactly 3 features");
   });
 });
 
-// Flow 5: no slug collisions, prices sane
-flow("uniqueness + pricing", () => {
+// Flow 5: no slug collisions, prices sane, section rendering covers everything
+flow("uniqueness + pricing + sections", () => {
   const slugs = D.PRODUCTS.map(p => p.slug);
-  assert.strictEqual(new Set(slugs).size, 5, "slugs must be unique");
+  assert.strictEqual(new Set(slugs).size, 29, "slugs must be unique");
+  assert.strictEqual(D.SECTIONS.length, 7);
+  const covered = new Set();
+  D.SECTIONS.forEach(s => {
+    assert.ok(s.title && s.key, "section needs key + title");
+    D.productsInSection(s.key).forEach(p => covered.add(p.slug));
+  });
+  assert.strictEqual(covered.size, 29, "every product rendered in exactly one section");
   D.PRODUCTS.forEach(p => {
     if (p.price === 0) assert.strictEqual(p.priceLabel, "Free");
     else assert.ok(p.priceLabel.includes(String(p.price)), p.slug + " label matches price");
