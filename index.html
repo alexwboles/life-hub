@@ -23,9 +23,23 @@
 </header>
 
 <main>
+  <section class="section" id="starter">
+    <h2>Start here</h2>
+    <p class="section-sub">Tell the hub what's going on in your life — it suggests a starter set.</p>
+    <div id="starter-picks" class="starter-picks"></div>
+    <p id="starter-result" class="starter-result" aria-live="polite"></p>
+  </section>
+
   <section class="section" id="products">
     <h2>The twenty-nine</h2>
     <p class="section-sub">Each stands alone. Pick the one you need today.</p>
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search products, features…" aria-label="Search products">
+      <select id="section-filter" aria-label="Filter by section">
+        <option value="all">All sections</option>
+      </select>
+    </div>
+    <p id="result-count" class="result-count" aria-live="polite"></p>
     <div id="product-grid"></div>
   </section>
 
@@ -33,6 +47,13 @@
     <h2>A week with Life OS</h2>
     <p class="section-sub">What it actually feels like when the small stuff is handled.</p>
     <div id="week-list"></div>
+  </section>
+
+  <section class="section" id="builder">
+    <h2>Build your stack</h2>
+    <p class="section-sub">Check the products you'd actually use. If your stack includes all five Life OS products, the hub applies the $19/mo bundle price to them.</p>
+    <div id="pick-list" class="pick-list"></div>
+    <div id="stack-quote" class="quote" aria-live="polite"></div>
   </section>
 
   <section class="section" id="bundle">

@@ -507,17 +507,112 @@
     return PRODUCTS.filter(function (p) { return p.section === key; });
   }
 
+  /* --- Search / filter -----------------------------------------------------
+   * Text search across names, taglines, one-liners and features, optionally
+   * restricted to one section. Case-insensitive; empty query matches all.
+   */
+  function searchProducts(query, sectionKey) {
+    var q = (query || "").trim().toLowerCase();
+    return PRODUCTS.filter(function (p) {
+      if (sectionKey && sectionKey !== "all" && p.section !== sectionKey) return false;
+      if (!q) return true;
+      var hay = (p.name + " " + p.tagline + " " + p.oneliner + " " + p.features.join(" ")).toLowerCase();
+      return hay.indexOf(q) !== -1;
+    });
+  }
+
+  /* --- Stack builder -------------------------------------------------------
+   * Quote any subset of the catalogue. If the selection contains ALL of the
+   * Life OS bundle products, the bundle price replaces their separate total
+   * (the honest overlap math: $30 of products for $19).
+   */
+  function quoteStack(slugs) {
+    var picks = [];
+    var seen = {};
+    (slugs || []).forEach(function (slug) {
+      var p = getProduct(slug);
+      if (p && !seen[slug]) { seen[slug] = true; picks.push(p); }
+    });
+    var separate = picks.reduce(function (sum, p) { return sum + p.price; }, 0);
+    var hasAll = BUNDLE_SLUGS.every(function (slug) { return seen[slug]; });
+    var bundleDiscount = hasAll ? separateTotal() - bundlePrice() : 0;
+    var effective = separate - bundleDiscount;
+    return {
+      picks: picks.map(function (p) { return p.slug; }),
+      count: picks.length,
+      separate: separate,
+      bundleApplies: hasAll,
+      bundleDiscount: bundleDiscount,
+      effective: effective,
+      verdict: picks.length === 0
+        ? "Pick some products to price your stack."
+        : hasAll
+          ? "Your stack includes the full Life OS bundle — that's $" + bundlePrice() + "/mo instead of $" + separateTotal() + "/mo for those five. Stack total: $" + effective + "/mo."
+          : "Your stack: $" + effective + "/mo. (Tip: pick all five Life OS products — NestLife, BudgetLens, HomeKeeper, StudyFlow and GiftGenius — to unlock the $19/mo bundle price.)"
+    };
+  }
+
+  /* --- Starter-pack quiz ----------------------------------------------------
+   * Life situations, each with a recommended starter set of products.
+   */
+  var STARTERS = [
+    {
+      key: "new-home",
+      label: "Just moved in",
+      blurb: "New place, new systems: meals, maintenance and the money behind it.",
+      slugs: ["nestlife-ai", "homekeeper-ai", "budgetlens-ai", "homeinventory-ai"]
+    },
+    {
+      key: "new-parent",
+      label: "New baby",
+      blurb: "Log the chaos, feed everyone, keep the lights on.",
+      slugs: ["babytracker-ai", "nestlife-ai", "budgetlens-ai", "medtrack-ai"]
+    },
+    {
+      key: "money-reset",
+      label: "Money reset",
+      blurb: "Find the leaks, kill the debt, earn a little more on the side.",
+      slugs: ["budgetlens-ai", "debtpayoff-ai", "sidehustle-ai", "taxprep-ai"]
+    },
+    {
+      key: "get-healthy",
+      label: "Get healthy",
+      blurb: "Move more, track meds, build the habits that stick.",
+      slugs: ["fitnessplan-ai", "habitloop-ai", "medtrack-ai", "hearth-ai"]
+    },
+    {
+      key: "big-trip",
+      label: "Big trip coming",
+      blurb: "Plan it, pack it, pay for it without the stress.",
+      slugs: ["roadtrip-ai", "travelpack-ai", "budgetlens-ai", "partyplan-ai"]
+    }
+  ];
+
+  function starterPack(profileKey) {
+    var profile = null;
+    STARTERS.forEach(function (s) { if (s.key === profileKey) profile = s; });
+    if (!profile) return { profile: null, products: [] };
+    return {
+      profile: profile,
+      products: profile.slugs.map(getProduct).filter(Boolean)
+    };
+  }
+
   return {
     PRODUCTS: PRODUCTS,
     SECTIONS: SECTIONS,
     WEEK: WEEK,
     BASE: BASE,
     BUNDLE_SLUGS: BUNDLE_SLUGS,
+    STARTERS: STARTERS,
     separateTotal: separateTotal,
     bundlePrice: bundlePrice,
     bundleSavings: bundleSavings,
     grandTotal: grandTotal,
     getProduct: getProduct,
-    productsInSection: productsInSection
+    productsInSection: productsInSection,
+    searchProducts: searchProducts,
+    quoteStack: quoteStack,
+    starterPack: starterPack
   };
 }));

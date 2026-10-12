@@ -79,6 +79,11 @@ else
   bad "hero copy present"
 fi
 
+# new interactive sections present
+for id in starter starter-picks starter-result search section-filter result-count builder pick-list stack-quote; do
+  if grep -q "id=\"$id\"" index.html; then ok "index.html has #$id"; else bad "index.html missing #$id"; fi
+done
+
 echo "---"
 echo "smoke: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ]

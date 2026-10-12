@@ -74,6 +74,47 @@ flow("renderer null-safety", () => {
     "app.js guards against missing mount points");
 });
 
+// Flow 7: search + section filter
+flow("searchProducts", () => {
+  assert.strictEqual(D.searchProducts("", "all").length, 29, "empty query matches all");
+  assert.strictEqual(D.searchProducts("", "home").length, D.productsInSection("home").length, "section filter matches section count");
+  assert.strictEqual(D.searchProducts("62-task", "all").length, 1, "feature text search");
+  assert.strictEqual(D.searchProducts("MEAL PLAN", "all").length >= 1, true, "case-insensitive");
+  assert.strictEqual(D.searchProducts("zzz-no-match", "all").length, 0, "no false positives");
+});
+
+// Flow 8: stack builder with bundle-overlap pricing
+flow("quoteStack", () => {
+  const full = D.quoteStack(D.BUNDLE_SLUGS);
+  assert.strictEqual(full.bundleApplies, true, "all five bundle products -> bundle applies");
+  assert.strictEqual(full.separate, 30, "bundle five separate = 30");
+  assert.strictEqual(full.effective, 19, "bundle price replaces separate total");
+  assert.strictEqual(full.bundleDiscount, 11, "discount = 30-19");
+  const partial = D.quoteStack(["nestlife-ai", "budgetlens-ai"]);
+  assert.strictEqual(partial.bundleApplies, false, "partial bundle selection -> no discount");
+  assert.strictEqual(partial.effective, 16, "partial pays à la carte");
+  const mixed = D.quoteStack(["nestlife-ai", "budgetlens-ai", "homekeeper-ai", "studyflow-ai", "giftgenius-ai", "fitnessplan-ai"]);
+  assert.strictEqual(mixed.bundleApplies, true, "bundle five + extra still applies");
+  assert.strictEqual(mixed.effective, 19 + 8, "bundle five at 19 + extra at 8");
+  const empty = D.quoteStack([]);
+  assert.strictEqual(empty.count, 0, "empty stack");
+  const dup = D.quoteStack(["nestlife-ai", "nestlife-ai", "nope"]);
+  assert.strictEqual(dup.count, 1, "dedupes and ignores unknown");
+});
+
+// Flow 9: starter-pack quiz
+flow("starterPack", () => {
+  assert.strictEqual(D.STARTERS.length, 5, "5 starter profiles");
+  const pack = D.starterPack("new-parent");
+  assert.strictEqual(pack.profile.key, "new-parent", "profile lookup");
+  assert.ok(pack.products.length >= 3, "profile recommends products");
+  assert.ok(pack.products.every(p => D.getProduct(p.slug)), "all recommended slugs resolve");
+  const keys = D.STARTERS.map(s => s.key);
+  assert.strictEqual(new Set(keys).size, 5, "profile keys unique");
+  const unknown = D.starterPack("nope");
+  assert.strictEqual(unknown.profile, null, "unknown profile -> null");
+});
+
 console.log("---");
 console.log("e2e: " + pass + " passed, " + fail + " failed");
 process.exit(fail === 0 ? 0 : 1);
