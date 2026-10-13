@@ -115,6 +115,47 @@ flow("starterPack", () => {
   assert.strictEqual(unknown.profile, null, "unknown profile -> null");
 });
 
+// Flow 10: comparison table content is complete and aligned
+flow("compareTable content", () => {
+  const t = D.compareTable(["hearth-ai", "giftgenius-ai"]);
+  assert.strictEqual(t.products[0].slug, "hearth-ai");
+  assert.strictEqual(t.rows[2].label, "In one line");
+  assert.ok(t.rows[2].cells.every(c => c.length > 10), "one-liners present");
+  const f3 = t.rows[5];
+  assert.strictEqual(f3.label, "Feature 3");
+  assert.strictEqual(f3.cells[0], D.getProduct("hearth-ai").features[2]);
+  assert.strictEqual(f3.cells[1], D.getProduct("giftgenius-ai").features[2]);
+  // three columns stay aligned across all rows
+  const t3 = D.compareTable(["nestlife-ai", "budgetlens-ai", "homekeeper-ai"]);
+  t3.rows.forEach(r => assert.strictEqual(r.cells.length, 3, r.label + " has 3 cells"));
+});
+
+// Flow 11: shareable stack links round-trip and survive page reload semantics
+flow("stack hash round-trip", () => {
+  const slugs = ["nestlife-ai", "budgetlens-ai", "fitnessplan-ai"];
+  const h = D.stackToHash(slugs);
+  assert.ok(h.startsWith("#stack="), "hash has #stack= prefix");
+  assert.deepStrictEqual(D.stackFromHash(h), slugs, "decode restores slug order");
+  // garbage in -> clean out
+  assert.deepStrictEqual(D.stackFromHash("#stack=,,,"), [], "empty segments ignored");
+  assert.deepStrictEqual(D.stackFromHash("#STACK=NESTLIFE-AI"), ["nestlife-ai"], "case-insensitive decode");
+  // every known product survives a round-trip alone
+  D.PRODUCTS.forEach(p => {
+    assert.deepStrictEqual(D.stackFromHash(D.stackToHash([p.slug])), [p.slug], p.slug + " round-trips");
+  });
+});
+
+// Flow 12: renderer wires favorites, compare and stack sharing (source-level)
+flow("renderer feature wiring", () => {
+  const src = require("fs").readFileSync("./js/app.js", "utf8");
+  assert.ok(src.includes("lifehub.favorites"), "favorites persisted under lifehub.favorites");
+  assert.ok(src.includes("toggleFavorite") && src.includes("renderShortlist"), "shortlist render + toggle exist");
+  assert.ok(src.includes("MAX_COMPARE = 3") && src.includes("renderCompareTable"), "compare capped at 3, table renderer exists");
+  assert.ok(src.includes("stackFromHash(window.location.hash)"), "builder restores stack from URL hash");
+  assert.ok(src.includes("copy-stack-link") && src.includes("navigator.clipboard"), "copy-link button with clipboard");
+  assert.ok(src.includes("card-actions") && src.includes("aria-pressed"), "card action buttons are accessible");
+});
+
 console.log("---");
 console.log("e2e: " + pass + " passed, " + fail + " failed");
 process.exit(fail === 0 ? 0 : 1);

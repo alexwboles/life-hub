@@ -598,6 +598,59 @@
     };
   }
 
+  /* --- Product comparison ---------------------------------------------------
+   * Side-by-side table for 2-3 slugs: section, price, one-liner, features.
+   * Unknown slugs are dropped and the table caps at 3 columns.
+   */
+  function compareTable(slugs) {
+    var seen = {};
+    var products = [];
+    (slugs || []).forEach(function (slug) {
+      var p = getProduct(slug);
+      if (p && !seen[slug] && products.length < 3) { seen[slug] = true; products.push(p); }
+    });
+    var sectionName = function (p) {
+      for (var i = 0; i < SECTIONS.length; i++) {
+        if (SECTIONS[i].key === p.section) return SECTIONS[i].title;
+      }
+      return p.section;
+    };
+    var rows = [
+      { label: "Section", cells: products.map(sectionName) },
+      { label: "Price", cells: products.map(function (p) { return p.priceLabel; }) },
+      { label: "In one line", cells: products.map(function (p) { return p.oneliner; }) }
+    ];
+    for (var f = 0; f < 3; f++) {
+      (function (fi) {
+        rows.push({
+          label: "Feature " + (fi + 1),
+          cells: products.map(function (p) { return p.features[fi] || "—"; })
+        });
+      })(f);
+    }
+    return { products: products, rows: rows };
+  }
+
+  /* --- Shareable stacks -------------------------------------------------------
+   * Encode a picked stack as a URL hash (#stack=slug1,slug2) so it can be
+   * shared as a link; decode it back on page load. Unknown slugs are dropped.
+   */
+  function stackToHash(slugs) {
+    var seen = {};
+    var out = [];
+    (slugs || []).forEach(function (s) {
+      if (getProduct(s) && !seen[s]) { seen[s] = true; out.push(s); }
+    });
+    return out.length ? "#stack=" + out.join(",") : "";
+  }
+
+  function stackFromHash(hash) {
+    var m = String(hash || "").match(/#stack=([a-z0-9\-,]+)/i);
+    if (!m) return [];
+    return m[1].split(",").map(function (s) { return s.trim().toLowerCase(); })
+      .filter(function (s) { return !!getProduct(s); });
+  }
+
   return {
     PRODUCTS: PRODUCTS,
     SECTIONS: SECTIONS,
@@ -613,6 +666,9 @@
     productsInSection: productsInSection,
     searchProducts: searchProducts,
     quoteStack: quoteStack,
-    starterPack: starterPack
+    starterPack: starterPack,
+    compareTable: compareTable,
+    stackToHash: stackToHash,
+    stackFromHash: stackFromHash
   };
 }));

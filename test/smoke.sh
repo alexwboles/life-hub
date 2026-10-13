@@ -68,6 +68,32 @@ t("only giftgenius is free",
   D.PRODUCTS.filter(p => p.price === 0).map(p => p.slug).join(",") === "giftgenius-ai");
 t("prices are non-negative numbers",
   D.PRODUCTS.every(p => typeof p.price === "number" && p.price >= 0));
+// compare tool
+const cmp2 = D.compareTable(["nestlife-ai", "budgetlens-ai"]);
+t("compareTable 2 products -> 2 columns", cmp2.products.length === 2);
+t("compareTable has 6 rows (section, price, oneliner + 3 features)", cmp2.rows.length === 6);
+t("compareTable rows have one cell per product",
+  cmp2.rows.every(r => r.cells.length === cmp2.products.length));
+t("compareTable section row resolves section titles",
+  cmp2.rows[0].label === "Section" && cmp2.rows[0].cells[0] === "Home & family" && cmp2.rows[0].cells[1] === "Money & work");
+t("compareTable price row uses labels",
+  cmp2.rows[1].cells.every((c, i) => c === cmp2.products[i].priceLabel));
+t("compareTable drops unknown slugs and dedupes",
+  D.compareTable(["nestlife-ai", "nope", "nestlife-ai"]).products.length === 1);
+t("compareTable caps at 3 products",
+  D.compareTable(D.PRODUCTS.map(p => p.slug)).products.length === 3);
+t("compareTable empty -> empty table", D.compareTable([]).products.length === 0);
+// shareable stack hashes
+t("stackToHash encodes slugs",
+  D.stackToHash(["nestlife-ai", "budgetlens-ai"]) === "#stack=nestlife-ai,budgetlens-ai");
+t("stackToHash drops unknowns/dupes, empty -> ''",
+  D.stackToHash(["nope"]) === "" && D.stackToHash(["nestlife-ai", "nestlife-ai", "nope"]) === "#stack=nestlife-ai");
+t("stackFromHash decodes",
+  JSON.stringify(D.stackFromHash("#stack=nestlife-ai,budgetlens-ai")) === JSON.stringify(["nestlife-ai", "budgetlens-ai"]));
+t("stackFromHash filters unknown slugs",
+  JSON.stringify(D.stackFromHash("#stack=nestlife-ai,nope-zzz")) === JSON.stringify(["nestlife-ai"]));
+t("stackFromHash ignores non-stack hashes",
+  D.stackFromHash("").length === 0 && D.stackFromHash("#card-nestlife-ai").length === 0);
 console.log("node assertions: " + n + " passed");
 ' || bad "node data assertions"
 [ $? -eq 0 ] && ok "node data assertions block"
@@ -80,7 +106,7 @@ else
 fi
 
 # new interactive sections present
-for id in starter starter-picks starter-result search section-filter result-count builder pick-list stack-quote; do
+for id in starter starter-picks starter-result search section-filter result-count builder pick-list stack-quote shortlist shortlist-list copy-stack-link compare compare-tray compare-table; do
   if grep -q "id=\"$id\"" index.html; then ok "index.html has #$id"; else bad "index.html missing #$id"; fi
 done
 
