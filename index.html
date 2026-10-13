@@ -9,98 +9,133 @@
 </head>
 <body>
 
-<header class="hero">
-  <div class="hero-inner">
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="wordmark" href="./">Life Hub</a>
+    <p class="topbar-meta">29 tools · calm by design · <a href="#shortlist" id="topbarShortlist">shortlist (<span id="topbarShortlistCount">0</span>)</a></p>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
     <p class="hero-kicker">A portfolio of independent AI products · personal life</p>
     <h1>Run your household like it runs itself.</h1>
     <p class="hero-sub">Home, money, food, health, trips, events — twenty-nine small tools that each do one job well, and together make the week feel easy.</p>
     <div class="hero-stats">
-      <div class="stat"><span class="stat-num">29</span><span class="stat-label">products</span></div>
-      <div class="stat"><span class="stat-num">100%</span><span class="stat-label">free to run</span></div>
-      <div class="stat"><span class="stat-num">0</span><span class="stat-label">accounts needed</span></div>
+      <div class="stat"><b>29</b><span>products</span></div>
+      <div class="stat"><b>7</b><span>chapters</span></div>
+      <div class="stat"><b>$0</b><span>accounts needed</span></div>
     </div>
   </div>
-</header>
+</section>
 
-<main>
-  <section class="section" id="starter">
-    <h2>Start here</h2>
-    <p class="section-sub">Tell the hub what's going on in your life — it suggests a starter set.</p>
+<nav class="chapters" id="chapters" aria-label="Chapters">
+  <div class="wrap chapters-in" id="chapterLinks"></div>
+</nav>
+
+<main class="wrap">
+  <section class="ledger-sec" id="starter" aria-labelledby="starter-h">
+    <div class="sec-head">
+      <p class="sec-kicker">Start here</p>
+      <h2 id="starter-h">Find your rhythm</h2>
+      <p class="sec-sub">Tell the hub what's going on in your life — it suggests a starter set.</p>
+    </div>
     <div id="starter-picks" class="starter-picks"></div>
     <p id="starter-result" class="starter-result" aria-live="polite"></p>
   </section>
 
-  <section class="section" id="shortlist" style="display:none">
-    <h2>Your shortlist</h2>
-    <p class="section-sub">Saved with the <strong>Save</strong> button on any card — kept on this device.</p>
+  <section class="ledger-sec" id="shortlist" style="display:none" aria-labelledby="shortlist-h">
+    <div class="sec-head">
+      <p class="sec-kicker">Kept on this device</p>
+      <h2 id="shortlist-h">Your shortlist</h2>
+      <p class="sec-sub">Saved with the <strong>Save</strong> button on any card.</p>
+    </div>
     <p class="result-count" id="shortlist-count" aria-live="polite"></p>
     <div id="shortlist-list" class="shortlist"></div>
   </section>
 
-  <section class="section" id="products">
-    <h2>The twenty-nine</h2>
-    <p class="section-sub">Each stands alone. Pick the one you need today.</p>
+  <section class="ledger-sec" id="products" aria-labelledby="products-h">
+    <div class="sec-head">
+      <p class="sec-kicker">The collection</p>
+      <h2 id="products-h">The twenty-nine</h2>
+      <p class="sec-sub">Each stands alone. Pick the one you need today.</p>
+    </div>
     <div class="toolbar">
       <input id="search" type="search" placeholder="Search products, features…" aria-label="Search products">
       <select id="section-filter" aria-label="Filter by section">
-        <option value="all">All sections</option>
+        <option value="all">All chapters</option>
       </select>
     </div>
     <p id="result-count" class="result-count" aria-live="polite"></p>
     <div id="product-grid"></div>
   </section>
 
-  <section class="section section-alt" id="week">
-    <h2>A week with Life OS</h2>
-    <p class="section-sub">What it actually feels like when the small stuff is handled.</p>
-    <div id="week-list"></div>
+  <section class="ledger-sec ledger-alt" id="week" aria-labelledby="week-h">
+    <div class="sec-head">
+      <p class="sec-kicker">The rhythm</p>
+      <h2 id="week-h">A week with Life OS</h2>
+      <p class="sec-sub">What it actually feels like when the small stuff is handled.</p>
+    </div>
+    <div id="week-list" class="week-spread"></div>
   </section>
 
-  <section class="section" id="builder">
-    <h2>Build your stack</h2>
-    <p class="section-sub">Check the products you'd actually use. If your stack includes all five Life OS products, the hub applies the $19/mo bundle price to them.</p>
-    <div id="pick-list" class="pick-list"></div>
-    <div id="stack-quote" class="quote" aria-live="polite"></div>
-    <button id="copy-stack-link" class="copy-link-btn" type="button" style="display:none">Copy stack link</button>
+  <section class="ledger-sec" id="builder" aria-labelledby="builder-h">
+    <div class="sec-head">
+      <p class="sec-kicker">Honest pricing</p>
+      <h2 id="builder-h">Build your stack</h2>
+      <p class="sec-sub">Check the products you'd actually use. If your stack includes all five Life OS products, the hub applies the $19/mo bundle price to them.</p>
+    </div>
+    <div class="builder-grid">
+      <div id="pick-list" class="pick-list"></div>
+      <div class="quote-panel">
+        <div id="stack-quote" class="quote" aria-live="polite"></div>
+        <button id="copy-stack-link" class="btn ghost" type="button" style="display:none">Copy stack link</button>
+      </div>
+    </div>
   </section>
 
-  <section class="section section-alt" id="compare">
-    <h2>Compare products</h2>
-    <p class="section-sub">Can't decide between two? Compare them side by side — section, price, and features.</p>
+  <section class="ledger-sec ledger-alt" id="compare" aria-labelledby="compare-h">
+    <div class="sec-head">
+      <p class="sec-kicker">Decide</p>
+      <h2 id="compare-h">Compare products</h2>
+      <p class="sec-sub">Can't decide between two? Compare them side by side — section, price, and features.</p>
+    </div>
     <div id="compare-tray" class="compare-tray"></div>
     <div id="compare-table"></div>
   </section>
 
-  <section class="section" id="bundle">
-    <h2>One calm subscription</h2>
-    <p class="section-sub">Buy them separately, or get the whole household covered.</p>
-    <div class="bundle-box">
-      <div class="bundle-row">
-        <span>Separately</span>
-        <strong id="bundle-separate">$30/mo</strong>
-      </div>
-      <div class="bundle-row bundle-highlight">
-        <span>Life OS bundle</span>
-        <strong id="bundle-price">$19/mo</strong>
-      </div>
-      <p class="bundle-note" id="bundle-save">You keep $11/mo</p>
-      <p class="bundle-fine">NestLife $8 + BudgetLens $8 + HomeKeeper $6 + StudyFlow $8 = $30/mo. GiftGenius is free, always. The bundle keeps it simple at $19/mo. The other twenty-four products are priced individually — from free to $12/mo — so you only pay for what you actually use.</p>
+  <section class="ledger-sec" id="bundle" aria-labelledby="bundle-h">
+    <div class="sec-head">
+      <p class="sec-kicker">One calm subscription</p>
+      <h2 id="bundle-h">The Life OS bundle</h2>
+      <p class="sec-sub">Buy them separately, or get the whole household covered.</p>
+    </div>
+    <div class="ledger-card">
+      <div class="ledger-row"><span>À la carte <em>(NestLife $8 + BudgetLens $8 + HomeKeeper $6 + StudyFlow $8)</em></span><strong id="bundle-separate">$30/mo</strong></div>
+      <div class="ledger-row ledger-total"><span>Life OS bundle</span><strong id="bundle-price">$19/mo</strong></div>
+      <div class="ledger-keep" id="bundle-save">You keep $11/mo</div>
+      <p class="ledger-fine">GiftGenius is free, always. The other twenty-four products are priced individually — from free to $12/mo — so you only pay for what you actually use.</p>
     </div>
   </section>
 
-  <section class="section section-alt" id="philosophy">
-    <h2>How we build</h2>
+  <section class="ledger-sec ledger-alt" id="philosophy" aria-labelledby="philosophy-h">
+    <div class="sec-head">
+      <p class="sec-kicker">Principles</p>
+      <h2 id="philosophy-h">How we build</h2>
+    </div>
     <div class="principles">
-      <div class="principle"><h3>🏠 Local-first</h3><p>Your family's data stays on your devices. Nothing is uploaded anywhere.</p></div>
-      <div class="principle"><h3>🌿 Calm by design</h3><p>Plain language, gentle nudges, no red badges screaming at you.</p></div>
-      <div class="principle"><h3>🧩 Independent</h3><p>Each product works on its own. Bundles are offered, never forced.</p></div>
-      <div class="principle"><h3>💸 Honest pricing</h3><p>Free tiers that are actually useful. No dark patterns.</p></div>
+      <div class="principle"><p class="principle-kicker">Local-first</p><h3>Your family's data stays home</h3><p>Everything runs on your devices. Nothing is uploaded anywhere.</p></div>
+      <div class="principle"><p class="principle-kicker">Calm by design</p><h3>No red badges screaming at you</h3><p>Plain language, gentle nudges, room to breathe.</p></div>
+      <div class="principle"><p class="principle-kicker">Independent</p><h3>Bundles offered, never forced</h3><p>Each product works on its own. Take one or take five.</p></div>
+      <div class="principle"><p class="principle-kicker">Honest pricing</p><h3>Free tiers that are actually useful</h3><p>No dark patterns, no surprise renewals.</p></div>
     </div>
   </section>
 </main>
 
 <footer>
-  <p>Life Hub — a portfolio of independent AI micro-products. Each product links to its own open repo.</p>
+  <div class="wrap">
+    <p>Life Hub — a portfolio of independent AI micro-products. Each product links to its own open repo.</p>
+  </div>
 </footer>
 
 <script src="js/data.js"></script>

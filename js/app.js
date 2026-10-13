@@ -34,6 +34,7 @@
     saveFavorites(favorites);
     renderProducts();
     renderShortlist();
+    syncTopbarShortlist();
   }
 
   function renderShortlist() {
@@ -205,11 +206,16 @@
     var sec = document.getElementById("section-filter").value;
     var matches = D.searchProducts(q, sec);
     var shown = 0;
-    D.SECTIONS.forEach(function (s) {
+    var ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII"];
+    D.SECTIONS.forEach(function (s, si) {
       var items = matches.filter(function (p) { return p.section === s.key; });
       if (!items.length) return;
       var block = el("div", "section-block");
-      block.appendChild(el("h3", "section-title", s.title));
+      block.id = "chapter-" + s.key;
+      var head = el("div", "chapter-head");
+      head.appendChild(el("span", "chapter-numeral", "Chapter " + (ROMAN[si] || (si + 1))));
+      head.appendChild(el("h3", "section-title", s.title));
+      block.appendChild(head);
       if (s.sub) block.appendChild(el("p", "section-sub-line", s.sub));
       var row = el("div", "grid");
       items.forEach(function (p) {
@@ -383,7 +389,46 @@
     if (sav) sav.textContent = "You keep $" + D.bundleSavings() + "/mo";
   }
 
+  /* --- chapter navigation + scrollspy --------------------------------------- */
+  function renderChapterNav() {
+    var wrap = document.getElementById("chapterLinks");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    D.SECTIONS.forEach(function (s) {
+      var a = el("a", "chapter-link", s.title);
+      a.href = "#chapter-" + s.key;
+      a.setAttribute("data-chapter", s.key);
+      wrap.appendChild(a);
+    });
+    if ("IntersectionObserver" in window) {
+      var links = {};
+      Array.prototype.forEach.call(wrap.querySelectorAll(".chapter-link"), function (a) {
+        links[a.getAttribute("data-chapter")] = a;
+      });
+      var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) {
+            var key = en.target.id.replace("chapter-", "");
+            Object.keys(links).forEach(function (k) {
+              links[k].classList.toggle("active", k === key);
+            });
+          }
+        });
+      }, { rootMargin: "-30% 0px -60% 0px" });
+      D.SECTIONS.forEach(function (s) {
+        var blk = document.getElementById("chapter-" + s.key);
+        if (blk) obs.observe(blk);
+      });
+    }
+  }
+
+  function syncTopbarShortlist() {
+    var c = document.getElementById("topbarShortlistCount");
+    if (c) c.textContent = favorites.length;
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
+    renderChapterNav();
     renderStarter();
     renderFilters();
     renderProducts();
